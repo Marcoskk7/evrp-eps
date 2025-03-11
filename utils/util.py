@@ -21,27 +21,47 @@ def set_device(gpu):
     """
     Parameters
     ----------
-    gpu: int 
-        Used GPU No. gpu=-1 indicates using cpu
+    gpu: str or int
+        GPU设置。可以是以下格式：
+        - 字符串(如 "0,1,2"): 使用指定的多个GPU
+        - 整数: 使用单个GPU（如 0）
+        - -1: 使用CPU
 
     Returns
     -------
     use_cuda: bool
-        whether a gpu is used or not
+        是否使用GPU
     device: str
-        device name
+        主设备名称
     """
-    if gpu >= 0:
-        assert torch.cuda.is_available(), "There is no available GPU."
-        torch.cuda.set_device(gpu)
-        device = f"cuda:{gpu}"
+    if isinstance(gpu, str) and ',' in gpu:
+        # 多GPU设置
+        os.environ['CUDA_VISIBLE_DEVICES'] = gpu
+        assert torch.cuda.is_available(), "没有可用的GPU。"
+        device = "cuda"
         use_cuda = True
         cudnn.benchmark = True
-        print(f'selected device: GPU #{gpu}')
-    else:
-        device = "cpu"
-        use_cuda = False
-        print(f'selected device: CPU')
+        print(f'使用多个GPU: {gpu}')
+    elif isinstance(gpu, (int, str)):
+        # 单GPU或CPU设置
+        gpu = int(gpu)
+        if gpu >= 0:
+            assert torch.cuda.is_available(), "没有可用的GPU。"
+            torch.cuda.set_device(gpu)
+            device = f"cuda:{gpu}"
+            use_cuda = True
+            cudnn.benchmark = True
+            print(f'使用单个GPU #{gpu}')
+        else:
+            device = "cpu"
+            use_cuda = False
+            print('使用CPU')
+    
+    if use_cuda:
+        print(f'可用GPU数量: {torch.cuda.device_count()}')
+        for i in range(torch.cuda.device_count()):
+            print(f'GPU {i}: {torch.cuda.get_device_name(i)}')
+    
     return use_cuda, device
 
 def check_extension(filename):
