@@ -4,6 +4,7 @@ import json
 import os
 import torch
 import torch.optim as optim
+from torch import nn
 from tqdm import tqdm
 from models.am import AM4CIRP
 import models.baselines as rl_baseline
@@ -43,6 +44,7 @@ def main(args: argparse.Namespace) -> None:
                     dropout=args.dropout,
                     device=device)
     if use_cuda:
+        model = nn.DataParallel(model)
         model.to(device)
     model_optimizer = optim.Adam(model.parameters(), lr=args.lr)
     
