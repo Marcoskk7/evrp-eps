@@ -44,7 +44,9 @@ def main(args: argparse.Namespace) -> None:
                     dropout=args.dropout,
                     device=device)
     if use_cuda:
-        model = nn.DataParallel(model)
+        if torch.cuda.device_count() > 1:
+            print(f"Using {torch.cuda.device_count()} GPUs!")
+            model = nn.DataParallel(model)
         model.to(device)
     model_optimizer = optim.Adam(model.parameters(), lr=args.lr)
     
