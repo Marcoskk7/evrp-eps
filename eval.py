@@ -191,7 +191,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # general settings
     parser.add_argument("--random_seed",      type=int, default=1234)
-    parser.add_argument("--gpu",              type=int, default=-1)
+    parser.add_argument("--gpu",              type=str, default=-1)
     parser.add_argument("--num_workers",      type=int, default=4)
     parser.add_argument("--visualize_routes", action="store_true")
     parser.add_argument("--output_dir",       type=str, default=f"results/results_{now}")
